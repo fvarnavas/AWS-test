@@ -3,30 +3,32 @@ package com.awstest;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Simple input stream using generated printable characters
+ */
 public class GeneratedInputStream extends InputStream {
-    static final long MAX = 9999999999L;
-    long bytes;
-    long sent;
-    byte[] size;
+    public static final long MAX = 9999999999L;
+    private final byte[] size;
+    private final long bytes;
+    private long sent;
 
-    /** generate up to 9999999999 printable bytes in a stream
+    /**
      *
-     * @param bytes number of bytes in the stream
+     * @param bytes number of bytes in the stream (after the length header)
      */
-    GeneratedInputStream(long bytes){
-        this.bytes = bytes < 0 ? 0 : Math.min(bytes, MAX);
-        size = String.format("%010d",this.bytes).getBytes();
-        this.bytes += 10; // sending 10 bytes for the length
+    public GeneratedInputStream(long bytes){
+        bytes = bytes < 0 ? 0 : Math.min(bytes, MAX);
+        size = String.format("%010d", bytes).getBytes();
+        this.bytes = bytes + 10; // sending 10 bytes for the length
     }
 
     /**
      * @return next char in the stream
      * First 10 bytes returned are the stream length
      *
-     * @throws IOException
      */
     @Override
-    public int read() throws IOException {
+    public int read() {
         if (sent < 10)
             return size[(int) sent++];
 

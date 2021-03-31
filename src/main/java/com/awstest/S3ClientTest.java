@@ -16,6 +16,7 @@ public class S3ClientTest {
         Regions region = Regions.US_EAST_1;
         String bucket = "cs-db-test";
         String key = "FrankTest";
+        long sendSize = 300000000;
 
         // connect to S3 using cached credentials
         AmazonS3 client = AmazonS3ClientBuilder
@@ -28,7 +29,7 @@ public class S3ClientTest {
             client.createBucket(bucket);
 
         // Create an input stream to send 300MB
-        try(InputStream is = new GeneratedInputStream(300000000L)) {
+        try(InputStream is = new GeneratedInputStream(sendSize)) {
             int c;
             byte[] tmp = new byte[10];
             int count = 0;
@@ -40,7 +41,7 @@ public class S3ClientTest {
 
             // set the content length
             long contentLength = Long.parseLong(new String(tmp));
-            System.out.println(String.format("contentLength is %,d bytes", contentLength));
+            System.out.printf("contentLength is %,d bytes%n", contentLength);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(contentLength);
 
@@ -50,7 +51,7 @@ public class S3ClientTest {
                 client.putObject(new PutObjectRequest(bucket, key, is, metadata));
                 System.out.println("putObject completed");
 
-                System.out.println(String.format("InstanceLength=%,d bytes", client.getObjectMetadata(bucket, key).getInstanceLength()));
+                System.out.printf("InstanceLength=%,d bytes%n", client.getObjectMetadata(bucket, key).getInstanceLength());
             } catch (AmazonServiceException ase) {
                 System.out.println("Error Message:    " + ase.getMessage());
                 System.out.println("HTTP Status Code: " + ase.getStatusCode());
