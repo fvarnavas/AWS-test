@@ -18,7 +18,8 @@ import java.net.Socket;
  * Server accepts the connection and processes ths socket stream like it did in the non-socket test
  *
  * NOTES:
- *      On my pc this test was very slow at sizes above around 1MB.  I think it's a local issue
+ *      On my pc this test was very slow at sizes above around 1MB.  I think it's a local issue.
+ *      It fails if you use SocketInputStream directly.
  *      My VM was set to 7MB for this test
  *
  */
