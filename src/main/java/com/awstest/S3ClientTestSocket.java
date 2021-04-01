@@ -11,11 +11,23 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Create a listen socket on an ephemeral port
+ * Start a thread that creates a client socket and connects to the server
+ * Client creates a GeneratedInputStream and pipes it to the server via TCP
+ * Server accepts the connection and processes ths socket stream like it did in the non-socket test
+ *
+ * NOTES:
+ *      On my pc this test was very slow at sizes above around 1MB.  I think it's a local issue
+ *      My VM was set to 7MB for this test
+ *
+ */
+
 public class S3ClientTestSocket {
     private final static Regions region = Regions.US_EAST_1;
     private final static String bucket = "cs-db-test";
     private final static String key = "FrankTest";
-    private final static long sendSize = 5000000;
+    private final static long sendSize = 1000000;
     private static AmazonS3 client;
 
     public static void main(String[] args) {
@@ -67,7 +79,6 @@ public class S3ClientTestSocket {
 
             // process the socket input stream
             try(InputStream is = new BufferedInputStream(socket.getInputStream())){
-
                 long contentLength = S3Util.getContentLength(is);
                 System.out.printf("putObject started, contentLength=%,d bytes%n", contentLength);
 
