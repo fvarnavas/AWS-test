@@ -1,6 +1,5 @@
 package com.awstest;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -32,6 +31,16 @@ public class GeneratedInputStream extends InputStream {
         if (sent < 10)
             return size[(int) sent++];
 
-        return (int)(sent > bytes ? -1 : sent++ % 95 + 32);
+        return (int)(sent >= bytes ? -1 : sent++ % 95 + 32);
+    }
+
+    @Override
+    public int read(byte[] b) {
+        int count;
+
+        for(count = 0; count < b.length; count++) {
+            b[count] = (byte)read();
+        }
+        return count == 0 ? -1 : count;
     }
 }

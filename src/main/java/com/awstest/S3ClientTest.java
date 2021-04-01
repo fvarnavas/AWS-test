@@ -16,7 +16,7 @@ public class S3ClientTest {
         Regions region = Regions.US_EAST_1;
         String bucket = "cs-db-test";
         String key = "FrankTest";
-        long sendSize = 300000000;
+        long sendSize = 1000;
 
         // connect to S3 using cached credentials
         AmazonS3 client = AmazonS3ClientBuilder
@@ -30,39 +30,13 @@ public class S3ClientTest {
 
         // Create an input stream to send 300MB
         try(InputStream is = new GeneratedInputStream(sendSize)) {
-            int c;
-            byte[] tmp = new byte[10];
-            int count = 0;
+            long contentLength = S3Util.getContentLength(is);
+            System.out.printf("putObject started, contentLength=%,d bytes%n", contentLength);
 
-            // read the size from the input stream
-            while((c = is.read()) != -1 && count < 10){
-                tmp[count++] = (byte)c;
-            }
-
-            // set the content length
-            long contentLength = Long.parseLong(new String(tmp));
-            System.out.printf("contentLength is %,d bytes%n", contentLength);
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(contentLength);
-
-            // stream the payload to S3
-            try {
-                System.out.println("putObject started");
-                client.putObject(new PutObjectRequest(bucket, key, is, metadata));
-                System.out.println("putObject completed");
-
-                System.out.printf("InstanceLength=%,d bytes%n", client.getObjectMetadata(bucket, key).getInstanceLength());
-            } catch (AmazonServiceException ase) {
-                System.out.println("Error Message:    " + ase.getMessage());
-                System.out.println("HTTP Status Code: " + ase.getStatusCode());
-                System.out.println("AWS Error Code:   " + ase.getErrorCode());
-                System.out.println("Error Type:       " + ase.getErrorType());
-                System.out.println("Request ID:       " + ase.getRequestId());
-            } catch (AmazonClientException ace) {
-                System.out.println("Error Message: " + ace.getMessage());
-            }
+            long lengthReturned = S3Util.putStream(client, bucket, key, contentLength, is);
+            System.out.printf("putObject completed. ContentLength=%,d bytes%n", lengthReturned);
         } catch( Exception ex){
-            System.err.println("Error sending stream to S3" + ex);
+            System.err.println("Error sending stream to S3. " + ex);
         }
     }
 }
